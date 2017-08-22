@@ -1,3 +1,20 @@
 <resources>
     <string name="app_name">waterMarking</string>
+    <string name="action_sign_in">登录</string>
+    <string name="Account">用户账号</string>
+    <string name="prompt_password">账号密码</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="upload_asset">上传新资产</string>
+    <string name="view_asset">查看资产</string>
+    <string name="delete_asset">删除资产</string>
+    <string name="history">历史记录</string>
+    <string name="user_write_off">用户注销</string>
+    <string name="assert_change">修改</string>
+    <string name="assert_delete">删除</string>
+    <string name="assert_id">资产编号</string>
+    <string name="assert_value">资产总值 (元 人民币)</string>
+    <string name="assert_description">资产描述</string>
+    <string name="photo_select">请上传相片</string>
+    <string name="take_photo">拍照</string>
+    <string name="select_gallery">相册选择</string>
 </resources>
