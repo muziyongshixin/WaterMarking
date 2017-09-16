@@ -28,10 +28,10 @@ public class PhotoActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SDKInitializer.initialize(getApplicationContext());
         setContentView(R.layout.activity_photo);
         mLocationClient = new LocationClient(getApplicationContext());
-        mLocationClient.registerLocationListener(new Mylocationlistener());
-        SDKInitializer.initialize(getApplicationContext());
+        mLocationClient.registerLocationListener(new MyLocationListener());
         mapView = (MapView)findViewById(R.id.bmMap);
         baiduMap.setMyLocationEnabled(true);
         positionText=(TextView)findViewById(R.id.location);
@@ -77,7 +77,7 @@ public class PhotoActivity extends AppCompatActivity {
         MyLocationData locationData = locationBuilder.build();
         baiduMap.setMyLocationData(locationData);
     }
-    public class Mylocationlistener implements BDLocationListener {
+    public class MyLocationListener implements BDLocationListener {
 
         @Override
         public void onReceiveLocation(BDLocation bdLocation) {

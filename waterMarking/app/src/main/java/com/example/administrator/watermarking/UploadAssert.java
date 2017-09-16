@@ -75,7 +75,7 @@ public class UploadAssert  extends AppCompatActivity implements View.OnClickList
                 try {
                     uploadJson.put("assertNo",assertNo);
                     uploadJson.put("assertValue",assertValueString);
-                    uploadJson.put("asseertContent",assertContentString);
+                    uploadJson.put("assertContent",assertContentString);
 
                 } catch (JSONException e) {
                     e.printStackTrace();

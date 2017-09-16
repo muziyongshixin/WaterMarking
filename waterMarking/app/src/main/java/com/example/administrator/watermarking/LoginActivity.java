@@ -72,6 +72,11 @@ public class LoginActivity  extends AppCompatActivity{
                     connection.setData(sendData);
                     connection.start();
                 }
+                try {
+                    connection.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
 
             }
         });
