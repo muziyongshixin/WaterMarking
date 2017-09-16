@@ -1,8 +1,10 @@
 package com.example.administrator.watermarking;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -69,6 +71,8 @@ public class UploadAssert  extends AppCompatActivity implements View.OnClickList
         switch (v.getId()){
             //拍摄图片
             case R.id.btn_take_photo:{
+                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivityForResult(intent,1);
                 break;
             }
             //相册中选择
@@ -96,5 +100,9 @@ public class UploadAssert  extends AppCompatActivity implements View.OnClickList
                 break;
             }
         }
+    }
+    protected  void onActivityResult(int requestCode,int resultCode,Intent data){
+        super.onActivityResult(requestCode,resultCode,data);
+        if(resultCode == RESULT_OK)
     }
 }
