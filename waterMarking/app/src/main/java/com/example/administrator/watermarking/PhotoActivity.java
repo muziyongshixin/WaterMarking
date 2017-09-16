@@ -18,6 +18,7 @@ import com.baidu.mapapi.model.LatLng;
 
 /**
  * Created by Administrator on 2017-08-11.
+ * 主要用于获取当前位置
  */
 public class PhotoActivity extends AppCompatActivity {
     public LocationClient mLocationClient;

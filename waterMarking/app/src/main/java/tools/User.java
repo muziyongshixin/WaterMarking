@@ -6,6 +6,7 @@ import java.util.List;
 
 /**
  * Created by 32706 on 2017/3/2.
+ * 用户类信息
  */
 public class User implements Serializable{
     private String token;

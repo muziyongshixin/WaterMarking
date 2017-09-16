@@ -55,7 +55,11 @@ public class LoginActivity  extends AppCompatActivity{
         account =(EditText)findViewById(R.id.Account);
         password=(EditText)findViewById(R.id.password);
         btn_sign_in= (Button)findViewById(R.id.btn_sign_in);
-        connection = Connection.getConnection();
+        try {
+            connection = Connection.getConnection();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         sendData = new ConnectionData();
         intent = new Intent();
 

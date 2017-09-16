@@ -25,8 +25,6 @@ import java.net.Socket;
  */
 public class Connection extends Thread{
     public static Socket client;
-    public String address;
-    public int port;
     private ConnectionData clientSendData;
     private ObjectOutputStream clientOutputStream;
     private ObjectInputStream clientInputStream;
@@ -35,14 +33,14 @@ public class Connection extends Thread{
     //这里使用单例模式来创建这个子线程的socket通信
     private static Connection connection;
 
-    private Connection(String address,int port){
-        this.address = address;
-        this.port = port;
-        client = new Socket();
+    private Connection() throws IOException {
+        client = new Socket(FLAG.ADDRESS,FLAG.PORT);
+        clientOutputStream = new ObjectOutputStream(client.getOutputStream());
+        clientInputStream = new ObjectInputStream(client.getInputStream());
     }
-    public static synchronized Connection getConnection(){
+    public static synchronized Connection getConnection() throws IOException {
         if(connection == null){
-            connection = new Connection(FLAG.ADDRESS,FLAG.PORT);
+            connection = new Connection();
         }
         return connection;
     }
@@ -55,12 +53,8 @@ public class Connection extends Thread{
     @Override
     public void run(){
         try {
-            client.connect(new InetSocketAddress(this.address,this.port),5000);
             //send the data by the output
-            OutputStream os = client.getOutputStream();
-            clientOutputStream= new ObjectOutputStream(os);
             clientOutputStream.writeObject(clientSendData);
-            os.flush();
             //get  the input object
             clientInputStream = new ObjectInputStream(new BufferedInputStream(client.getInputStream()));
             Object ob = clientInputStream.readObject();
@@ -68,14 +62,15 @@ public class Connection extends Thread{
             Message msg = new Message();
             msg.obj = out;
             mHandler.sendMessage(msg);
-            os.close();
-            clientInputStream.close();
-            client.close();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
 
+    }
+    public void connectStop() throws IOException {
+        clientInputStream.close();
+        clientOutputStream.close();
     }
 }

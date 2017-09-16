@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 /**
  * Created by Administrator on 2017-08-12.
+ * 图片类信息
  */
 public class Picture implements Serializable{
     private int picture_no;

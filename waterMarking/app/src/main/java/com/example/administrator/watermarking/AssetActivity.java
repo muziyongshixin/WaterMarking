@@ -34,6 +34,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Text;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,7 +66,11 @@ public class AssetActivity extends AppCompatActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_asset);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        connection = Connection.getConnection();
+        try {
+            connection = Connection.getConnection();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         sendData = new ConnectionData();
     }
     @Override

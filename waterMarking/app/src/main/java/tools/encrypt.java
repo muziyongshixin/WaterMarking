@@ -4,11 +4,12 @@ import android.util.Base64;
 
 /**
  * Created by Administrator on 2017-08-07.
+ * 加密算法的实现
  */
-public class encrypt {
+public class Encrypt {
     byte[] photoContent;
     String key;
-    public encrypt(byte[] photo,String key){
+    public Encrypt(byte[] photo, String key){
         this.photoContent = photo;
         this.key = key;
     }

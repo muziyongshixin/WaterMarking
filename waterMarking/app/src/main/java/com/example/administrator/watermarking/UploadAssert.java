@@ -15,6 +15,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import android.os.Handler;
 
+import java.io.IOException;
+
 import tools.Connection;
 import tools.ConnectionData;
 import tools.FLAG;
@@ -54,19 +56,26 @@ public class UploadAssert  extends AppCompatActivity implements View.OnClickList
         uploadBtn = (Button)findViewById(R.id.btn_assert_upload);
         //传输类数据的初始化
         sendData = new ConnectionData();
-        connection = Connection.getConnection();
+        try {
+            connection = Connection.getConnection();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         FLAG.FLAG_HANDLER = mHandler;
         connection.setHandler();
     }
     @Override
     public void onClick(View v) {
         switch (v.getId()){
+            //拍摄图片
             case R.id.btn_take_photo:{
                 break;
             }
+            //相册中选择
             case R.id.btn_select_gallery:{
                 break;
             }
+            //资产上传
             case R.id.btn_assert_upload:{
                 String assertNo = assertId.getText().toString();
                 String assertContentString = assertContent.getText().toString();

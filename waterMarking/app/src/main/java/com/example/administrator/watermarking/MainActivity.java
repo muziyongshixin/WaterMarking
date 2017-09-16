@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
+        // 包括上传，历史记录，总资产的显示
         switch (v.getId()){
             case R.id.main_upload_asset:
                 intent.setClass(MainActivity.this,UploadAssert.class);
