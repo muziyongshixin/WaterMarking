@@ -16,6 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
         <LinearLayout
+            android:id="@+id/take_photo_layout"
             android:layout_width="match_parent"
             android:layout_height="100dp"
             android:background="@color/fontColor"
@@ -43,13 +44,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/take_photo"
-                    android:background="@null"/>
-                <Button
-                    android:layout_marginLeft="5pt"
-                    android:id="@+id/btn_select_gallery"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/select_gallery"
                     android:background="@null"/>
             </LinearLayout>
 

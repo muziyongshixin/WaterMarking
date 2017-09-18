@@ -1,21 +1,19 @@
 package com.example.administrator.watermarking;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import java.io.IOException;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import tools.Connection;
-import tools.ConnectionData;
 import tools.FLAG;
 
 /**
@@ -27,25 +25,32 @@ public class LoginActivity  extends AppCompatActivity{
     EditText password;
     Button btn_sign_in;
     Connection connection;
-    ConnectionData sendData;
+    JSONObject sendData;
     Intent intent;
 
     Handler mHandler = new Handler(){
         @Override
         public void handleMessage(Message msg){
-            ConnectionData receiveData = (ConnectionData) msg.obj;
-            if(receiveData.getState().equals(FLAG.STATE[0])){
-                FLAG.TOKEN = receiveData.getToken();
-                FLAG.USERACCOUNT = receiveData.getPhone();
-                FLAG.USERPASSWORD = receiveData.getPassword();
-                intent.setClass(LoginActivity.this,MainActivity.class);
-                startActivity(intent);
-                FLAG.HISTORY.append("用户: "+receiveData.getPhone() + " 登陆成功");
-            }else{
-                Toast.makeText(LoginActivity.this,"请输入正确的账号密码",Toast.LENGTH_SHORT).show();
-                account.setText("");
-                password.setText("");
+            JSONObject receiveData = (JSONObject) msg.obj;
+            try {
+                if(receiveData.has("state")) {
+                    if (receiveData.getString("state").equals(FLAG.STATE[0])) {
+                        FLAG.TOKEN = receiveData.getString("token");
+                        FLAG.USERACCOUNT = sendData.getString("phone");
+                        FLAG.USERPASSWORD = sendData.getString("password");
+                        intent.setClass(LoginActivity.this, MainActivity.class);
+                        startActivity(intent);
+                        FLAG.HISTORY.append("用户: " + FLAG.USERACCOUNT + " 登陆成功");
+                    } else {
+                        Toast.makeText(LoginActivity.this, "请输入正确的账号密码", Toast.LENGTH_SHORT).show();
+                        account.setText("");
+                        password.setText("");
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
+
         }
     };
     @Override
@@ -55,12 +60,7 @@ public class LoginActivity  extends AppCompatActivity{
         account =(EditText)findViewById(R.id.Account);
         password=(EditText)findViewById(R.id.password);
         btn_sign_in= (Button)findViewById(R.id.btn_sign_in);
-        try {
-            connection = Connection.getConnection();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        sendData = new ConnectionData();
+        sendData = new JSONObject();
         intent = new Intent();
 
     }
@@ -71,15 +71,12 @@ public class LoginActivity  extends AppCompatActivity{
         btn_sign_in.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                connection = Connection.getConnection();
                 connection.setHandler();
                 if(setSendData()){
                     connection.setData(sendData);
+                    connection.startSend();
                     connection.start();
-                }
-                try {
-                    connection.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
                 }
 
             }
@@ -102,10 +99,15 @@ public class LoginActivity  extends AppCompatActivity{
                 return false;
             }
         }
-        sendData.setFunction(FLAG.FUNCTION[0]);
-        sendData.setPhone(phoneNumber);
-        sendData.setPassword(passWord);
-        return true;
+        try {
+            sendData.put("function",FLAG.FUNCTION[0]);
+            sendData.put("phone",phoneNumber);
+            sendData.put("password",passWord);
+            return true;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
 }

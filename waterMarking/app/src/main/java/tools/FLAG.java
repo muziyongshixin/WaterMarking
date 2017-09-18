@@ -7,7 +7,7 @@ import android.os.Handler;
  */
 public class FLAG {
     public static String ADDRESS = "192.168.191.1";
-    public static  int PORT = 20000;
+    public static  int PORT = 23333;
     public static String[] STATE = {"successful","failed"};
     public static final String[] FUNCTION = {
             "LOGIN",
@@ -24,5 +24,7 @@ public class FLAG {
     public static String USERACCOUNT;
     public static String USERPASSWORD;
     public static String HEADIMAGEPATH;
-    public static StringBuffer HISTORY;
+    public static StringBuffer HISTORY = new StringBuffer();
+    public static double LATITUDE = 1.1;
+    public static double LONGTITUDE = 1.2;
 }

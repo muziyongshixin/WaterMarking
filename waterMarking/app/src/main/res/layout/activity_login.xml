@@ -26,22 +26,6 @@
 
     </ScrollView>
 
-    <Button
-        android:id="@+id/btn_sign_in"
-        style="?android:textAppearanceSmall"
-        android:background="#63B8FF"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:text="@string/action_sign_in"
-        android:textStyle="bold"
-        android:layout_gravity="center_horizontal"
-        android:layout_alignBottom="@+id/login_form"
-        android:layout_alignLeft="@+id/view"
-        android:layout_alignStart="@+id/view"
-        android:layout_marginBottom="86dp"
-        android:layout_alignRight="@+id/view"
-        android:layout_alignEnd="@+id/view" />
-
     <EditText
         android:id="@+id/password"
         android:layout_width="match_parent"
@@ -54,9 +38,8 @@
         android:inputType="textPassword"
         android:maxLines="1"
         android:singleLine="true"
-        android:layout_above="@+id/btn_sign_in"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_below="@+id/Account"
+        android:layout_toEndOf="@+id/login_progress" />
 
     <EditText
         android:id="@+id/Account"
@@ -69,8 +52,7 @@
         android:singleLine="true"
         android:layout_centerVertical="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        />
+        android:layout_alignParentStart="true" />
 
     <com.makeramen.roundedimageview.RoundedImageView
         android:backgroundTint="#ffff"
@@ -81,7 +63,19 @@
         android:background="@mipmap/ic_head"
         android:layout_gravity="center_horizontal"
         android:id="@+id/view"
-        android:layout_above="@+id/Account"
+        android:layout_below="@+id/login_progress"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:id="@+id/btn_sign_in"
+        style="?android:textAppearanceSmall"
+        android:background="#63B8FF"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:text="@string/action_sign_in"
+        android:textStyle="bold"
+        android:layout_gravity="center_horizontal"
+        android:layout_below="@+id/password"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="41dp" />
+        android:layout_marginTop="44dp" />
 </RelativeLayout>

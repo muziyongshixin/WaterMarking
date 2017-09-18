@@ -7,13 +7,16 @@ import android.util.Base64;
  * 加密算法的实现
  */
 public class Encrypt {
-    byte[] photoContent;
-    String key;
-    public Encrypt(byte[] photo, String key){
-        this.photoContent = photo;
-        this.key = key;
+    public static String makeEncrypt(String key,String content){
+        String result = "";
+        return result;
     }
-    public void makeEncrypt(){
-        byte[] out = Base64.decode(photoContent,1);
+    public static String makeDecrypted(String key,String content){
+        String result = "";
+        return result;
+    }
+    public static byte[] EmbedInfo(byte[] photoData,String info){
+        byte[] result  = Base64.encode(photoData,Base64.DEFAULT);
+        return result;
     }
 }

@@ -55,7 +55,8 @@
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
                 android:layout_marginTop="36dp"
-                android:id="@+id/linearLayout">
+                android:id="@+id/main_upload_assert"
+                android:clickable="true">
                 <TextView
                     android:layout_width="15pt"
                     android:layout_height="wrap_content" />
@@ -71,16 +72,17 @@
                     android:layout_height="wrap_content"
                     android:text="@string/upload_asset"
                     android:textColor="@color/fontColor"
-                    android:textSize="10pt"
-                    android:id="@+id/main_upload_asset"/>
+                    android:textSize="10pt"/>
             </LinearLayout>
             <LinearLayout
+                android:id="@+id/main_assert"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/linearLayout"
+                android:layout_below="@+id/main_upload_assert"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
-                android:layout_marginTop="34dp">
+                android:layout_marginTop="34dp"
+                android:clickable="true">
                 <TextView
                     android:layout_width="15pt"
                     android:layout_height="wrap_content" />
@@ -96,9 +98,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/view_asset"
                     android:textColor="@color/fontColor"
-                    android:textSize="10pt"
-                    android:id="@+id/main_asset"
-                    android:clickable="true"/>
+                    android:textSize="10pt"/>
             </LinearLayout>
 
             <LinearLayout
@@ -107,8 +107,9 @@
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
                 android:layout_marginTop="35dp"
-                android:id="@+id/linearLayout3"
-                android:layout_centerVertical="true">
+                android:id="@+id/main_history"
+                android:layout_centerVertical="true"
+                android:clickable="true">
                 <TextView
                     android:layout_width="15pt"
                     android:layout_height="wrap_content" />
@@ -124,17 +125,17 @@
                     android:layout_height="wrap_content"
                     android:text="@string/history"
                     android:textColor="@color/fontColor"
-                    android:textSize="10pt"
-                    android:id="@+id/main_history"
-                    android:clickable="true"/>
+                    android:textSize="10pt"/>
             </LinearLayout>
             <LinearLayout
+                android:id="@+id/main_write_off"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/linearLayout3"
+                android:layout_below="@+id/main_history"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
-                android:layout_marginTop="33dp">
+                android:layout_marginTop="33dp"
+                android:clickable="true">
                 <TextView
                     android:layout_width="15pt"
                     android:layout_height="wrap_content" />
@@ -150,9 +151,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/user_write_off"
                     android:textColor="@color/fontColor"
-                    android:textSize="10pt"
-                    android:id="@+id/main_write_off"
-                    android:clickable="true"/>
+                    android:textSize="10pt"/>
             </LinearLayout>
 
         </RelativeLayout>
