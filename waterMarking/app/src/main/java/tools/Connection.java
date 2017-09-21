@@ -81,6 +81,7 @@ public class Connection extends Thread{
                     try {
                         out = new JSONObject(serverData);
                         Message msg = new Message();
+                        msg.what = 0;
                         msg.obj = out;
                         mHandler.sendMessage(msg);
                         stopSend();

@@ -6,4 +6,6 @@
     <color name="fontColor">#454545</color>
     <color name="background">#4D4D4D</color>
     <color name="photoBackground">#C1C1C1</color>
+    <color name="colorBG">#EEEEEE</color>
+    <color name="assertUpLayout">#FFFF</color>
 </resources>

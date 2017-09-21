@@ -1,6 +1,9 @@
 package tools;
 
+import android.os.Environment;
 import android.os.Handler;
+
+import java.io.File;
 
 /**
  * Created by Administrator on 2017-08-13.
@@ -14,8 +17,6 @@ public class FLAG {
             "UPLOAD",
             "DOWNLOAD",
             "USERINFO",
-            "REFRESH",
-            "MODIFY",
             "DELETE",
             "LOGOUT"
     };
@@ -27,4 +28,5 @@ public class FLAG {
     public static StringBuffer HISTORY = new StringBuffer();
     public static double LATITUDE = 1.1;
     public static double LONGTITUDE = 1.2;
+    public static File picPathDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),"waterMarking");
 }

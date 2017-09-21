@@ -1,8 +1,10 @@
 package com.example.administrator.watermarking;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -27,10 +29,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import tools.Connection;
+import tools.EmbedInfo;
 import tools.Encrypt;
 import tools.FLAG;
 
@@ -51,7 +55,11 @@ public class UploadAssert  extends AppCompatActivity implements View.OnClickList
     Connection connection;
 
     BdPosition bdPosition;
+
+    //存储照片的位置
     File uploadFile = null;
+    //记录本地照片的序号
+    String picNo = null;
     Handler mHandler = new Handler(){
         @Override
         public void handleMessage(Message msg){
@@ -61,6 +69,9 @@ public class UploadAssert  extends AppCompatActivity implements View.OnClickList
                 try {
                     if(receiveData.getString("state").equals("successful")){
                         Toast.makeText(UploadAssert.this,"上传成功",Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent();
+                        intent.setClass(UploadAssert.this,MainActivity.class);
+                        startActivity(intent);
                     }else{
                         String wrongInfo = receiveData.getString("wrongInfo");
                         Toast.makeText(UploadAssert.this,"上传失败"+ wrongInfo,Toast.LENGTH_SHORT).show();
@@ -100,8 +111,9 @@ public class UploadAssert  extends AppCompatActivity implements View.OnClickList
 
         picFileDir  = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),"waterMarking");
         //FIXME 关于位置的获取使用百度地图还是有些问题！！！
+        Context context = getApplicationContext();
        try{
-           bdPosition = new BdPosition(this);
+           bdPosition = new BdPosition(context);
        }catch (Exception e){
            e.printStackTrace();
            Log.v("Location","happend exception" + e.toString());
@@ -114,59 +126,72 @@ public class UploadAssert  extends AppCompatActivity implements View.OnClickList
             case R.id.btn_take_photo:{
 
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                //TODO 写入到文件中的做法是否正确还需要商榷
                 uploadFile = getOutputFile();
                 Uri u = Uri.fromFile(uploadFile);
                 intent.putExtra(MediaStore.EXTRA_OUTPUT,u);
                 startActivityForResult(intent,GET_IMAGE_CAMERA);
-               /* picMap = BitmapFactory.decodeFile(uploadFile.getPath());
-                imageView.setImageBitmap(picMap);
-                findViewById(R.id.take_photo_layout).setVisibility(View.INVISIBLE);*/
                 break;
             }
             //资产上传
             case R.id.btn_assert_upload:{
 
-                //TODO 这里资产不应该有资产的编号，应该是新的资产由服务器分配,这里仅作测试用
                 String assertNo = assertId.getText().toString();
-                String assertContentString = assertContent.getText().toString();
-                String assertValueString = assertValue.getText().toString();
+                String assertDesc = assertContent.getText().toString();
+                String assertValueMount = assertValue.getText().toString();
                 String position = String.valueOf(FLAG.LATITUDE) + "," + String.valueOf(FLAG.LONGTITUDE);
-                String picInfo = assertNo+","+ assertContentString + "," + assertValueString + "," + position;
-                Log.v(TAG,"get info is "+picInfo);
+                JSONObject picInfoJson = new JSONObject();
+                try {
+                    picInfoJson.put("assertNo",assertNo);
+                    picInfoJson.put("assertDesc",assertDesc);
+                    picInfoJson.put("assertValue",assertValueMount);
+                    picInfoJson.put("position",position);
+                    picInfoJson.put("picNo",picNo);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.v(TAG,"get info is "+picInfoJson.toString());
                 //TODO 将图片信息进行加密
-                //String encrptInfo = Encrypt.makeEncrypt(FLAG.TOKEN,picInfo);
-                    //将加密的信息嵌入到图片中去
-                   // ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    //picMap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                Encrypt encrypt = null;
+                String picInfo = "";
+                try {
+                    encrypt = new Encrypt(FLAG.TOKEN,"utf-8");
+                    picInfo = encrypt.encode(picInfoJson.toString());
+                    Log.v(TAG,picInfo);
+                    String newPicInfo = encrypt.decode(picInfo);
+                    Log.v(TAG,FLAG.TOKEN);
+                    Log.v(TAG,newPicInfo);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
                 if(picMap == null){
                     Toast.makeText(this,"图片为空",Toast.LENGTH_SHORT).show();
                     Log.v(TAG,"save file is null");
                 }else {
-                    byte[] picAinfo = null;
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    picMap.compress(Bitmap.CompressFormat.JPEG,100,baos);
-                    picAinfo = baos.toByteArray();
-                    if(picAinfo != null) {
-                        //TODO 这里需要使用嵌入算法将信息嵌入进去，下面知识一个测试通信代码
-                        //byte[] picAinfo = Encrypt.EmbedInfo(baos.toByteArray(),encrptInfo);
-                        //byte[] picAinfo = baos.toByteArray();
-                        //通过base64来将图片信息转换成字符串信息
+                    //水印嵌入算法
+                    picMap = EmbedInfo.writeInfoInBiM(EmbedInfo.Info2Binary(picInfo),picMap);
+                    //图片转换字节并且进行base64编码
+                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    picMap.compress(Bitmap.CompressFormat.PNG,100,bos);
+                    byte[] picAinfo = bos.toByteArray();
+                    if(picAinfo.length > 0 ) {
                         String picData = Base64.encodeToString(picAinfo,Base64.DEFAULT);
-                        //开始上传图片
 
+                        //json传输的封装
                         JSONObject uploadJson = new JSONObject();
                         try {
                             uploadJson.put("function", FLAG.FUNCTION[1]);
                             uploadJson.put("token", FLAG.TOKEN);
                             uploadJson.put("pic", picData);
-                            /*uploadJson.put("assertNo",assertNo);
-                            uploadJson.put("assertValue",assertValueString);
-                            uploadJson.put("assertContent",assertContentString);*/
                             connection.setData(uploadJson);
                             connection.startSend();
 
                         } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
                     }else{
@@ -180,10 +205,33 @@ public class UploadAssert  extends AppCompatActivity implements View.OnClickList
             }
         }
     }
+
+    //获取相机返回的图片数据，并且保存在文件中
+    protected  void onActivityResult(int requestCode,int resultCode,Intent data){
+        super.onActivityResult(requestCode,resultCode,data);
+        if(resultCode == RESULT_OK){
+            if(requestCode == GET_IMAGE_CAMERA) {
+                try {
+                    //测试程序测试bitmap前后的变化
+                    //test();
+                    FileInputStream fis = new FileInputStream(uploadFile.getPath());
+                    picMap = BitmapFactory.decodeStream(fis).copy(Bitmap.Config.ARGB_8888,true);
+                    Bitmap zoomMap = zoomBitmap(picMap,picMap.getWidth()/2,picMap.getHeight()/2);
+                    imageView.setImageBitmap(zoomMap);
+                    findViewById(R.id.take_photo_layout).setVisibility(View.INVISIBLE);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
+    }
+    //确定保存的文件
     File getOutputFile(){
         try {
-            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-            picFile = new File(picFileDir.getPath() + File.separator + "IMG_" + timeStamp + ".jpg");
+            String timeStamp = new SimpleDateFormat("yyyyMMdd").format(new Date());
+            picNo = timeStamp;
+            picFile = new File(picFileDir.getPath() + File.separator + "IMG_" + timeStamp + ".PNG");
             Log.v(TAG,picFile.getPath());
         } catch (Exception e) {
             e.printStackTrace();
@@ -191,22 +239,29 @@ public class UploadAssert  extends AppCompatActivity implements View.OnClickList
         }
         return picFile;
     }
-    protected  void onActivityResult(int requestCode,int resultCode,Intent data){
-        super.onActivityResult(requestCode,resultCode,data);
-        if(resultCode == RESULT_OK){
-                //Uri u = Uri.parse(android.provider.MediaStore.Images.Media.insertImage(getCon))
-            //picMap = BitmapFactory.decodeFile(uploadFile.getPath(),null);
-            if(requestCode == GET_IMAGE_CAMERA) {
-                try {
-                    FileInputStream fis = new FileInputStream(uploadFile.getPath());
-                    picMap = BitmapFactory.decodeStream(fis);
-                    imageView.setImageBitmap(picMap);
-                    findViewById(R.id.take_photo_layout).setVisibility(View.INVISIBLE);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-
-            }
+    //图片进行压缩，保证在imageView中可以显示
+    public  Bitmap zoomBitmap(Bitmap bitmap, int width, int height) {
+        int w = bitmap.getWidth();
+        int h = bitmap.getHeight();
+        Matrix matrix = new Matrix();
+        float scaleWidth = ((float) width / w);
+        float scaleHeight = ((float) height / h);
+        matrix.postScale(scaleWidth, scaleHeight);
+        Bitmap newbmp = Bitmap.createBitmap(bitmap, 0, 0, w, h, matrix, true);
+        return newbmp;
+    }
+    public void test(){
+        try {
+            FileInputStream fis = new FileInputStream(uploadFile.getPath());
+            picMap = BitmapFactory.decodeStream(fis).copy(Bitmap.Config.ARGB_8888,true);
+            EmbedInfo.test(picMap);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            picMap.compress(Bitmap.CompressFormat.PNG,100,bos);
+            byte[] picData = bos.toByteArray();
+            Bitmap newBitmap = BitmapFactory.decodeByteArray(picData,0,picData.length);
+            EmbedInfo.test(newBitmap);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
     }
 }

@@ -49,6 +49,7 @@ public class Function {
 
                 break;
             }
+            //新增加的资产
             case "UPLOAD": {
                 User u = User_in_System.get_user_in_system(info.getString("token"));
                 if (u != null) {
@@ -97,10 +98,6 @@ public class Function {
             {
 
 
-                break;
-            }
-            case "MODIFY":
-            {
                 break;
             }
             case "DELETE":

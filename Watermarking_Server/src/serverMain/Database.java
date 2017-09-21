@@ -5,15 +5,19 @@ package  serverMain;
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.sql.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
 import com.sun.org.apache.xml.internal.security.utils.Base64;
+
+import javax.imageio.ImageIO;
 import java.util.List;
 
 /**
@@ -91,7 +95,7 @@ public class Database {
 
 
 
-    public static boolean Insert_new_picture(String phone,byte[] picData,String info_in_pic)//插入一个新的图片
+    public static boolean Insert_new_picture(String phone,byte[] picData,String assetNo,String picNo,String info)//插入一个新的图片
     {
         boolean flag=true;
         if(connpool==null)//如果数据库连接池还没建立，初始化连接池
@@ -100,8 +104,11 @@ public class Database {
         java.util.Date date = new java.util.Date();
         DateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
         String time = format.format(date);//得到完成订单的时间
-        String picture_NO = time+phone;
+       //这里存储的是手机端的照片序号这样可以避免向手机端传输照片，直接从本地获取照片，减少延迟
+        String picture_NO = picNo;
         String data_url=save_picture_in_file(picData,picture_NO);
+        String info_in_pic = info;
+
 
         if(data_url.equals(""))
         {
@@ -109,7 +116,7 @@ public class Database {
             return false;
         }
 
-        String sql_insert = "INSERT into photo VALUES (?,?,?,?,?)";
+        String sql_insert = "INSERT into photo VALUES (?,?,?,?,?,?)";
 
 
         try {
@@ -121,10 +128,11 @@ public class Database {
             PreparedStatement statement = conn.prepareStatement(sql_insert);
             // 结果集
             statement.setString(1,picture_NO);
-            statement.setString(2,phone);
-            statement.setString(3,time);
-            statement.setString(4,data_url);
-            statement.setString(5,info_in_pic);
+            statement.setString(2,assetNo);
+            statement.setString(3,phone);
+            statement.setString(4,time);
+            statement.setString(5,data_url);
+            statement.setString(6,info_in_pic);
 
             int rs=statement.executeUpdate();
             conn.close();
@@ -145,6 +153,45 @@ public class Database {
         return flag;
     }
 
+
+    public static boolean Insert_new_asset(String  userPhone,String assetNo,String assetDesc,String assetMoeny){
+        boolean flag=true;
+        if(connpool==null)//如果数据库连接池还没建立，初始化连接池
+            init_connection_pool();
+        String sql_insert = "INSERT into asset VALUES (?,?,?,?)";
+
+
+        try {
+            // 连续数据库
+            Connection conn = connpool.getConnection();
+            if (!conn.isClosed())
+                System.out.println("Succeeded connecting to the Database!");
+            // statement用来执行SQL语句
+            PreparedStatement statement = conn.prepareStatement(sql_insert);
+            // 结果集
+            statement.setString(1,userPhone);
+            statement.setString(2,assetNo);
+            statement.setString(3,assetDesc);
+            statement.setString(4,assetMoeny);
+
+            int rs=statement.executeUpdate();
+            conn.close();
+            if (rs == 0) {
+                System.out.println("插入资产失败========================Database.Insert_new_picture");
+                flag= false;
+            } else {
+                System.out.println("资产已保存到服务器，插入资产信息到数据库成功");
+                flag= true;
+            }
+            statement.close();
+            connpool.returnConnection(conn);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return flag;
+    }
 
     public static User User_identification(String phone_num, String passwd)//验证用户登录，成功返回true，失败返回false
     {
@@ -196,7 +243,7 @@ public class Database {
 
         JSONObject rt=new JSONObject();
 
-        String sql = "select photo_no,photo_url from photo where user_phone='" + phone+"'";
+        String sql = "select photo_no,asset_no from photo where user_phone='" + phone+"'";
         try {
 
             // 连续数据库
@@ -209,19 +256,25 @@ public class Database {
             ResultSet rs = statement.executeQuery(sql);
             int length = 0;
             while (rs.next()) {
+
                 JSONObject tmpJson = new JSONObject();
                 String picNo = rs.getString("photo_no");
-                String picUrl = rs.getString("photo_url");
-                tmpJson.put("picNo",picNo);//图片编号
-                String picStrData = Base64.encode(load_picture_from_file(picUrl));
-                if(picStrData == null)
-                    continue;
-                else
-                {
-                    tmpJson.put("picNo",picNo);
-                    tmpJson.put("picData",picStrData);
+                String asset_no = rs.getString("asset_no");
+                String tmpSql = "select asset_desc, asset_money from asset where asset_no='"+asset_no+"'";
+                Statement tmpStatement = conn.createStatement();
+                ResultSet tmpRs = tmpStatement.executeQuery(tmpSql);
+                while(tmpRs.next()) {
+                    String asset_desc = tmpRs.getString("asset_desc");
+                    String asset_money = tmpRs.getString("asset_money");
+                    tmpJson.put("pic_no",picNo);//图片编号
+                    tmpJson.put("asset_desc",asset_desc);//资产描述
+                    tmpJson.put("asset_money",asset_money);//资产价值
+                    tmpJson.put("asset_no",asset_no);//资产编号
                     rt.put(String.valueOf(length),tmpJson.toString());
                 }
+                tmpRs.close();
+                tmpStatement.close();
+
             }
             rs.close();
             statement.close();

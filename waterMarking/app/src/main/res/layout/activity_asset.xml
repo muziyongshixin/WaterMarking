@@ -1,83 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background">
+    android:fitsSystemWindows="true"
+    tools:context=".MainActivity">
 
-    <ScrollView
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appbar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/assert_scrollView" >
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
 
-
-        <LinearLayout
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:orientation="horizontal"
-                android:layout_height="60pt"
-                android:background="#ffff"
-                android:weightSum="1.0">
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="50pt"
-                    android:layout_weight=".50"
-                    android:layout_marginLeft="5pt"
-                    android:layout_marginTop="5pt"
-                    android:orientation="vertical">
-                    <EditText
-                        android:id="@+id/assert_id_name"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="房产"
-                        android:textSize="9pt"
-                        android:textColor="@color/fontColor"/>
-                    <EditText
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/assert_id_description"
-                        android:layout_marginTop="3pt"
-                        android:textColor="@color/fontColor"
-                        android:text="testtesttesttesttesttesttesttesttesttesttest"/>
-                </LinearLayout>
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="60pt"
-                    android:layout_weight=".50"
-                    android:background="@mipmap/ic_assets"/>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="20pt"
-                android:background="#fff"
-                android:orientation="horizontal"
-                android:weightSum="1.0">
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/assert_change"
-                    android:textColor="@color/fontColor"
-                    android:background="@null"/>
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="3pt"
-                    android:text="@string/assert_delete"
-                    android:textColor="@color/fontColor"
-                    android:background="@null"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="30pt"
-                    android:text="2017-1-1 18:20"
-                    android:textSize="8pt"
-                    android:textColor="@color/fontColor"/>
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
 
-            </LinearLayout>
-        </LinearLayout>
-    </ScrollView>
+    </android.support.design.widget.AppBarLayout>
 
-</LinearLayout>
+    <android.support.v7.widget.RecyclerView
+        android:layout_below="@+id/appbar"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:id="@+id/recycler_view"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+</RelativeLayout>
