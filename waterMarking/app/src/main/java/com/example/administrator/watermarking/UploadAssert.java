@@ -229,7 +229,7 @@ public class UploadAssert  extends AppCompatActivity implements View.OnClickList
     //确定保存的文件
     File getOutputFile(){
         try {
-            String timeStamp = new SimpleDateFormat("yyyyMMdd").format(new Date());
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
             picNo = timeStamp;
             picFile = new File(picFileDir.getPath() + File.separator + "IMG_" + timeStamp + ".PNG");
             Log.v(TAG,picFile.getPath());

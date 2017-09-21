@@ -271,6 +271,7 @@ public class Database {
                     tmpJson.put("asset_money",asset_money);//资产价值
                     tmpJson.put("asset_no",asset_no);//资产编号
                     rt.put(String.valueOf(length),tmpJson.toString());
+                    length++;
                 }
                 tmpRs.close();
                 tmpStatement.close();
