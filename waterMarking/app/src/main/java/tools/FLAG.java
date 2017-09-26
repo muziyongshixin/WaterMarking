@@ -18,6 +18,7 @@ public class FLAG {
             "DOWNLOAD",
             "USERINFO",
             "DELETE",
+            "ASSETNO",
             "LOGOUT"
     };
     public static Handler FLAG_HANDLER;

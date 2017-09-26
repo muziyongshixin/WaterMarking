@@ -40,6 +40,16 @@
             android:layout_height="match_parent" />
 
         <Button
+            android:id="@+id/addNewPic_btn"
+            android:text="更新资产"
+            android:textColor="@android:color/white"
+            android:backgroundTint="@color/colorAccent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_toStartOf="@+id/delete_btn" />
+
+        <Button
             android:id="@+id/delete_btn"
             android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
@@ -48,7 +58,6 @@
             android:backgroundTint="@color/colorAccent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
-
     </RelativeLayout>
 
 

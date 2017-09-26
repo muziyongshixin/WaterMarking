@@ -17,6 +17,7 @@
 package com.example.administrator.watermarking;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -80,7 +81,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
             holder.mImageViewCover.setImageBitmap(tmpMap);
             holder.mImageViewDetail.setImageBitmap(tmpMap);
             StringBuffer assetContent = new StringBuffer();
-            assetContent.append("资产编号\n"+tmpJson.getString("asset_no")+"\n");
+            assetContent.append("资产编号\n"+ tmpJson.getString("asset_no") +"\n");
             assetContent.append("资产名称\n"+tmpJson.getString("asset_desc")+"\n");
             assetContent.append("资产价值\n"+tmpJson.getString("asset_money")+"\n");
             holder.mTextViewAsset.setText(assetContent.toString());
@@ -104,6 +105,28 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
         } else {
             holder.mFoldableLayout.foldWithoutAnimation();
         }
+        //修改这个资产
+        holder.mButtonAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    JSONObject tmp = new JSONObject(mDataSet[position]);
+                    Intent intent = new Intent();
+                    Bundle bundle = new Bundle();
+                    bundle.putString("type","add");
+                    bundle.putString("asset_no", tmp.getString("asset_no"));
+                    bundle.putString("asset_desc",tmp.getString("asset_desc"));
+                    bundle.putString("asset_money",tmp.getString("asset_money"));
+                    intent.putExtras(bundle);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.setClass(mContext,UploadAssert.class);
+                    mContext.startActivity(intent);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
 
         //删除信息并进行提交
         holder.mButtonDelete.setOnClickListener(new View.OnClickListener() {
@@ -193,6 +216,9 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 
         @Bind(R.id.delete_btn)
         protected Button mButtonDelete;
+
+        @Bind(R.id.addNewPic_btn)
+        protected Button mButtonAdd;
 
         public PhotoViewHolder(FoldableLayout foldableLayout) {
             super(foldableLayout);

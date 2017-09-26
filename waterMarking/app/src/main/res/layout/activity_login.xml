@@ -20,39 +20,11 @@
         android:id="@+id/login_form"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/view"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/view">
 
     </ScrollView>
-
-    <EditText
-        android:id="@+id/password"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/prompt_password"
-        android:textColorHint="#ADADAD"
-        android:imeActionId="@+id/login"
-        android:imeActionLabel="@string/action_sign_in_short"
-        android:imeOptions="actionUnspecified"
-        android:inputType="textPassword"
-        android:maxLines="1"
-        android:singleLine="true"
-        android:layout_below="@+id/Account"
-        android:layout_toEndOf="@+id/login_progress" />
-
-    <EditText
-        android:id="@+id/Account"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/Account"
-        android:textColorHint="#ADADAD"
-        android:inputType="textPhonetic"
-        android:maxLines="1"
-        android:singleLine="true"
-        android:layout_centerVertical="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
 
     <com.makeramen.roundedimageview.RoundedImageView
         android:backgroundTint="#ffff"
@@ -78,4 +50,30 @@
         android:layout_below="@+id/password"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="44dp" />
+
+    <EditText
+        android:id="@+id/Account"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/Account"
+        android:textColorHint="#ADADAD"
+        android:inputType="textPhonetic"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:layout_centerVertical="true"
+        android:layout_alignParentStart="true" />
+
+    <EditText
+        android:id="@+id/password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/prompt_password"
+        android:textColorHint="#ADADAD"
+        android:imeActionId="@+id/login"
+        android:imeOptions="actionUnspecified"
+        android:inputType="textPassword"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:layout_below="@+id/Account"
+        android:layout_alignParentStart="true" />
 </RelativeLayout>

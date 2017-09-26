@@ -7,6 +7,7 @@ import net.sf.json.JSONObject;
 
 import java.io.File;
 import java.io.Serializable;
+import java.sql.Connection;
 
 /**
  * Created by 32706 on 2017/3/2.
@@ -56,21 +57,31 @@ public class User implements Serializable{
 
                 //解析json数据
                 JSONObject picJson = JSONObject.fromObject(jsonInfoInPic);
+                String type = picJson.getString("type");
                 String assertNo = picJson.getString("assertNo");
                 String assertDesc = picJson.getString("assertDesc");
                 String assertValue = picJson.getString("assertValue");
                 String picNo = picJson.getString("picNo");
-                //将图片信息存储在数据库中
-                if (!Database.Insert_new_picture(this.phoneNum, picData,assertNo,picNo,picJson.toString())) {
-                    System.out.println("上传图片出错，在database中出错================User.upload_pic");
-                    rt.put("state", "failed");
-                    rt.put("wrongInfo", "上传图片出错，在database中出错================User.upload_pic");
-                    return false;
-                }
-                if(!Database.Insert_new_asset(this.phoneNum,assertNo,assertDesc,assertValue)){
-                    System.out.println("上传资产出错，在database中出错================User.upload_pic");
-                    rt.put("state", "failed");
-                    rt.put("wrongInfo", "上传资产出错，在database中出错================User.upload_pic");
+                if(type.equals("new")) {
+                    //将图片信息存储在数据库中
+                    if (!Database.Insert_new_picture(this.phoneNum, picData, assertNo, picNo, picJson.toString())) {
+                        System.out.println("上传图片出错，在database中出错================User.upload_pic");
+                        rt.put("state", "failed");
+                        rt.put("wrongInfo", "上传图片出错，在database中出错================User.upload_pic");
+                        return false;
+                    }
+                    if (!Database.Insert_new_asset(this.phoneNum, assertNo, assertDesc, assertValue)) {
+                        System.out.println("上传资产出错，在database中出错================User.upload_pic");
+                        rt.put("state", "failed");
+                        rt.put("wrongInfo", "上传资产出错，在database中出错================User.upload_pic");
+                    }
+                }else if(type.equals("add")){
+                    if (!Database.Insert_new_picture(this.phoneNum, picData, assertNo, picNo, picJson.toString())) {
+                        System.out.println("上传图片出错，在database中出错================User.upload_pic");
+                        rt.put("state", "failed");
+                        rt.put("wrongInfo", "上传图片出错，在database中出错================User.upload_pic");
+                        return false;
+                    }
                 }
                 //将新添加的资产信息插入到数据库之中
 
@@ -88,43 +99,12 @@ public class User implements Serializable{
             rt.put("wrongInfo","上传图片为空===========================User.upload_pic");
             return false;
         }
-       /* JSONObject picListJson = JSONObject.fromObject(picListStr);
-        if (picListJson.size() > 0) {
-            for(int i = 0 ; i < picListJson.size() ; i++){
-                String pictureData = picListJson.getString(String.valueOf(i));
-                Picture tmpPic = new Picture();
-                try {
-                    tmpPic.setPic_data(Base64.decode(pictureData));
-                } catch (Base64DecodingException e) {
-                    e.printStackTrace();
-                }
-                String info_in_pic = Get_info_in_Picture.Get_info(tmpPic.getPic_data(),this.phoneNum);
-                //String info_in_pic="这是一条写死的测试信息==============xxxxxxxxxxxxxxxx";
-                System.out.println(info_in_pic);
-                if(info_in_pic==null)
-                {
-                    System.out.println("图片信息解析失败================User.upload_pic");
-                    rt.put("state","failed");
-                    rt.put("wrongInfo","图片信息解析失败================User.upload_pic");
-                    return false;
-                }
-
-                if (!Database.Insert_new_picture(this.phoneNum, tmpPic.getPic_data(),info_in_pic)) {
-                    System.out.println("上传图片出错，在database中出错================User.upload_pic");
-                    rt.put("state","failed");
-                    rt.put("wrongInfo","上传图片出错，在database中出错================User.upload_pic");
-                    return false;
-                }
-            }
-        } else {
-            rt.put("state","failed");
-            rt.put("wrongInfo","上传图片为空===========================User.upload_pic");
-            return false;
-        }
-
-        return true;*/
     }
 
+
+    public int getAssetMaxId(){
+        return Database.getMaxAssetId(this.phoneNum);
+    }
 
     public boolean download_pic(JSONObject in,JSONObject rt)//下载用户上传过的历史图片
     {
@@ -144,7 +124,13 @@ public class User implements Serializable{
 
     }
 
-
+    public boolean delete_asset(String assetNo,JSONObject rt){
+        if(Database.Delete_picture(assetNo,this.getPhoneNum(),rt)) {
+            return true;
+        }else{
+            return  false;
+        }
+    }
     public String getToken() {
         return token;
     }

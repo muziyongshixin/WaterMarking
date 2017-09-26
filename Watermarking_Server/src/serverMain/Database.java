@@ -236,14 +236,43 @@ public class Database {
 
 
 
+    public static int getMaxAssetId(String phone){
+        int number = 0;
+        if(connpool == null){
+            init_connection_pool();
+        }
+        String sql = "SELECT  MAX(asset_no) FROM `asset` WHERE user_phone = '"+ phone +"'";
+        try {
+            Connection conn = connpool.getConnection();
+            if(!conn.isClosed())
+                System.out.println("Succeeded connecting to the database");
+            Statement statement = conn.createStatement();
+            ResultSet res = statement.executeQuery(sql);
+            while(res.next()){
+                String asstN0 =  res.getString("Max(asset_no)");
+                number = Integer.valueOf(asstN0);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        if(number == 0)
+            number = 1;
+        else
+            number += 1;
+        return number;
+
+    }
 
     public static JSONObject Download_all_picture(String phone) {
         if(connpool==null)//如果数据库连接池还没建立，初始化连接池
             init_connection_pool();
 
         JSONObject rt=new JSONObject();
+        //下载资产对应的最新图片
+        String sql = "SELECT photo_no ,asset_no FROM photo WHERE asset_no IN(SELECT asset_no FROM `asset` WHERE user_phone = '"+ phone +"') and time IN(" +
+                "SELECT MAX(time) from photo where user_phone = '"+ phone+"' and asset_no IN(" +
+                " SELECT asset_no FROM `asset` WHERE user_phone = "+ phone +") GROUP BY asset_no)ORDER BY asset_no ASC";
 
-        String sql = "select photo_no,asset_no from photo where user_phone='" + phone+"'";
         try {
 
             // 连续数据库
@@ -257,7 +286,7 @@ public class Database {
             int length = 0;
             while (rs.next()) {
 
-                JSONObject tmpJson = new JSONObject();
+                    JSONObject tmpJson = new JSONObject();
                 String picNo = rs.getString("photo_no");
                 String asset_no = rs.getString("asset_no");
                 String tmpSql = "select asset_desc, asset_money from asset where asset_no='"+asset_no+"'";
@@ -286,6 +315,38 @@ public class Database {
         } finally {
 
             return rt;
+        }
+    }
+    public static boolean Delete_picture(String asset_no,String user_phone,JSONObject rt){
+        String dAsql = "DELETE FROM `asset` WHERE asset_no = '" + asset_no + "' AND user_phone = '"+ user_phone+"'";
+        String dPsql = "DELETE FROM `photo` WHERE asset_no = '"+ asset_no+"' AND user_phone = '"+user_phone+"'";
+        try {
+            Connection connection  = connpool.getConnection();
+            Statement statement = connection.createStatement();
+            statement.addBatch(dAsql);
+            statement.addBatch(dPsql);
+            int[] result = statement.executeBatch();
+            if(result[0] > 0 && result[1] > 0){
+                rt.put("state","successful");
+                return  true;
+            }else if(result[0] == 0 && result[1] > 0){
+                rt.put("state","fail");
+                rt.put("wrongInfo","删除资产失败");
+                return  false;
+            }else if(result[0] > 0 && result[1] == 0){
+                rt.put("state","fail");
+                rt.put("wrongInfo","删除资产图片失败");
+                return  false;
+            }else{
+                rt.put("state","fail");
+                rt.put("wrongInfo","所有删除失败");
+                return  false;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            rt.put("state","fail");
+            rt.put("wrongInfo","服务器异常");
+            return  false;
         }
     }
 

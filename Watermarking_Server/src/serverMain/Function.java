@@ -94,15 +94,45 @@ public class Function {
 
                 break;
             }
+            case "ASSETNO":
+            {
+                User u = User_in_System.get_user_in_system(info.getString("token"));
+                if (u != null) {
+                    String asset_no = String.valueOf(u.getAssetMaxId());
+                    rt.put("asset_no",asset_no);
+                    rt.put("state","successful");
+                } else {
+                    System.out.println("获取资产序号失败,用户未登录==========================Function.execute.case:下载");
+                    rt.put("state","failed");
+                    rt.put("wrongInfo","获取资产序号失败,用户未登录==========================Function.execute.case:下载");
+                    return;
+                }
+
+
+                break;
+            }
+
             case "USERINFO":
             {
-
+                
 
                 break;
             }
             case "DELETE":
             {
-
+                User u = User_in_System.get_user_in_system(info.getString("token"));
+                if (u != null) {
+                    if( u.delete_asset(info.getString("asset_no"),rt)){
+                        System.out.println("删除成功");
+                    }else{
+                        System.out.println("删除出现问题" + rt.getString("wrongInfo"));
+                    }
+                }else{
+                    System.out.println("删除失败,用户未登录==========================Function.execute.case:下删除");
+                    rt.put("state","failed");
+                    rt.put("wrongInfo","删除失败,用户未登录==========================Function.execute.case:删除");
+                }
+                break;
             }
             case "LOGOUT":
             {

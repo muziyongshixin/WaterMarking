@@ -8,4 +8,5 @@
     <color name="photoBackground">#C1C1C1</color>
     <color name="colorBG">#EEEEEE</color>
     <color name="assertUpLayout">#FFFF</color>
+    <color name="cpb_grey">#4D4444</color>
 </resources>

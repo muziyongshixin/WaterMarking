@@ -139,7 +139,6 @@ public class AssetActivity extends AppCompatActivity {
         }
 
     }
-    //FIXME 这部分的代码还有很大的问题渲染起来很麻烦
     private void viewRender(Context context,String[] dataSet) throws JSONException {
         PhotoAdapter adapter = new PhotoAdapter(dataSet, context,mHandler);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
@@ -151,16 +150,5 @@ public class AssetActivity extends AppCompatActivity {
             }
         });
         mRecyclerView.setAdapter(adapter);
-    }
-
-    public Bitmap zoomBitmap(Bitmap bitmap, int width, int height) {
-        int w = bitmap.getWidth();
-        int h = bitmap.getHeight();
-        Matrix matrix = new Matrix();
-        float scaleWidth = ((float) width / w);
-        float scaleHeight = ((float) height / h);
-        matrix.postScale(scaleWidth, scaleHeight);
-        Bitmap newbmp = Bitmap.createBitmap(bitmap, 0, 0, w, h, matrix, true);
-        return newbmp;
     }
 }

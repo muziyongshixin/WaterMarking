@@ -1,5 +1,6 @@
 package com.example.administrator.watermarking;
 
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -10,10 +11,13 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.renderscript.ScriptGroup;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -23,6 +27,9 @@ import org.json.JSONObject;
 import android.os.Handler;
 import android.widget.Toast;
 
+import com.dd.CircularProgressButton;
+import com.rey.material.widget.ProgressView;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,6 +37,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.security.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -46,11 +54,12 @@ public class UploadAssert  extends AppCompatActivity implements View.OnClickList
     int GET_IMAGE_CAMERA = 1;
     ImageView imageView ;
     Button takePhotoBtn ;
-    Button choseFromGallery;
+    Button button1;
+    ProgressView circularBar;
+
     EditText assertId;
     EditText assertValue;
     EditText assertContent;
-    Button uploadBtn;
     JSONObject sendData;
     Connection connection;
 
@@ -60,6 +69,9 @@ public class UploadAssert  extends AppCompatActivity implements View.OnClickList
     File uploadFile = null;
     //记录本地照片的序号
     String picNo = null;
+    Bundle bundle;
+    String type;
+
     Handler mHandler = new Handler(){
         @Override
         public void handleMessage(Message msg){
@@ -68,16 +80,28 @@ public class UploadAssert  extends AppCompatActivity implements View.OnClickList
             if(receiveData.has("state")){
                 try {
                     if(receiveData.getString("state").equals("successful")){
+                        circularBar.stop();
+                        circularBar.setVisibility(View.INVISIBLE);
+                        button1.setText("完成");
+                        button1.setVisibility(View.VISIBLE);
                         Toast.makeText(UploadAssert.this,"上传成功",Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent();
                         intent.setClass(UploadAssert.this,MainActivity.class);
                         startActivity(intent);
                     }else{
+                        circularBar.stop();
+                        circularBar.setVisibility(View.INVISIBLE);
+                        button1.setText("失败");
+                        button1.setVisibility(View.VISIBLE);
                         String wrongInfo = receiveData.getString("wrongInfo");
                         Toast.makeText(UploadAssert.this,"上传失败"+ wrongInfo,Toast.LENGTH_SHORT).show();
                         Toast.makeText(UploadAssert.this,"请重新上传",Toast.LENGTH_SHORT).show();
                     }
                 } catch (JSONException e) {
+                    circularBar.stop();
+                    circularBar.setVisibility(View.INVISIBLE);
+                    button1.setText("失败");
+                    button1.setVisibility(View.VISIBLE);
                     e.printStackTrace();
                     Toast.makeText(UploadAssert.this,"上传出现异常"+e.toString() ,Toast.LENGTH_SHORT).show();
                 }
@@ -94,6 +118,9 @@ public class UploadAssert  extends AppCompatActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_upload_assert);
+        Intent intent = getIntent();
+        bundle = intent.getExtras();
+        type = bundle.getString("type");
         //界面控件初始化
         imageView = (ImageView)findViewById(R.id.assert_photo);
         takePhotoBtn = (Button)findViewById(R.id.btn_take_photo);
@@ -101,8 +128,19 @@ public class UploadAssert  extends AppCompatActivity implements View.OnClickList
         assertId = (EditText)findViewById(R.id.assert_id_edt);
         assertValue = (EditText)findViewById(R.id.assert_value_edt);
         assertContent = (EditText)findViewById(R.id.assert_description_content);
-        uploadBtn = (Button)findViewById(R.id.btn_assert_upload);
-        uploadBtn.setOnClickListener(this);
+        button1 = (Button)findViewById(R.id.btn_assert_upload1);
+        button1.setOnClickListener(this);
+        circularBar = (ProgressView)findViewById(R.id.progress_pv_circular);
+        //资产编号要么是数据库获得，要么是activity传递
+        assertId.setText(bundle.getString("asset_no"));
+        assertId.setInputType(InputType.TYPE_NULL);
+        //如果是修改的资产，传进来的数据不能修改
+        if(type.equals("add")){
+            assertContent.setText(bundle.getString("asset_desc"));
+            assertContent.setInputType(InputType.TYPE_NULL);
+            assertValue.setText(bundle.getString("asset_money"));
+            assertValue.setInputType(InputType.TYPE_NULL);
+        }
         //传输类数据的初始化
         sendData = new JSONObject();
         connection = Connection.getConnection();
@@ -133,75 +171,82 @@ public class UploadAssert  extends AppCompatActivity implements View.OnClickList
                 break;
             }
             //资产上传
-            case R.id.btn_assert_upload:{
+            case R.id.btn_assert_upload1:{
+                button1.setVisibility(View.INVISIBLE);
+                circularBar.setVisibility(View.VISIBLE);
+                circularBar.start();
+                uploadDetial();
+                break;
+            }
 
-                String assertNo = assertId.getText().toString();
-                String assertDesc = assertContent.getText().toString();
-                String assertValueMount = assertValue.getText().toString();
-                String position = String.valueOf(FLAG.LATITUDE) + "," + String.valueOf(FLAG.LONGTITUDE);
-                JSONObject picInfoJson = new JSONObject();
+            default:{
+                break;
+            }
+        }
+    }
+    private void uploadDetial(){
+        String assertNo = assertId.getText().toString();
+        String assertDesc = assertContent.getText().toString();
+        String assertValueMount = assertValue.getText().toString();
+        String position = String.valueOf(FLAG.LATITUDE) + "," + String.valueOf(FLAG.LONGTITUDE);
+        JSONObject picInfoJson = new JSONObject();
+        try {
+            picInfoJson.put("assertNo",assertNo);
+            picInfoJson.put("assertDesc",assertDesc);
+            picInfoJson.put("assertValue",assertValueMount);
+            picInfoJson.put("position",position);
+            picInfoJson.put("picNo",picNo);
+            picInfoJson.put("type",type);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Log.v(TAG,"get info is "+picInfoJson.toString());
+        //TODO 将图片信息进行加密
+        Encrypt encrypt = null;
+        String picInfo = "";
+        try {
+            encrypt = new Encrypt(FLAG.TOKEN,"utf-8");
+            picInfo = encrypt.encode(picInfoJson.toString());
+            Log.v(TAG,picInfo);
+            String newPicInfo = encrypt.decode(picInfo);
+            Log.v(TAG,FLAG.TOKEN);
+            Log.v(TAG,newPicInfo);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if(picMap == null){
+            Toast.makeText(this,"图片为空",Toast.LENGTH_SHORT).show();
+            Log.v(TAG,"save file is null");
+        }else {
+            //水印嵌入算法
+            picMap = EmbedInfo.writeInfoInBiM(EmbedInfo.Info2Binary(picInfo),picMap);
+            //图片转换字节并且进行base64编码
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            picMap.compress(Bitmap.CompressFormat.PNG,100,bos);
+            byte[] picAinfo = bos.toByteArray();
+            if(picAinfo.length > 0 ) {
+                String picData = Base64.encodeToString(picAinfo,Base64.DEFAULT);
+
+                //json传输的封装
+                JSONObject uploadJson = new JSONObject();
                 try {
-                    picInfoJson.put("assertNo",assertNo);
-                    picInfoJson.put("assertDesc",assertDesc);
-                    picInfoJson.put("assertValue",assertValueMount);
-                    picInfoJson.put("position",position);
-                    picInfoJson.put("picNo",picNo);
+                    uploadJson.put("function", FLAG.FUNCTION[1]);
+                    uploadJson.put("token", FLAG.TOKEN);
+                    uploadJson.put("pic", picData);
+                    connection.setData(uploadJson);
+                    connection.startSend();
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                Log.v(TAG,"get info is "+picInfoJson.toString());
-                //TODO 将图片信息进行加密
-                Encrypt encrypt = null;
-                String picInfo = "";
                 try {
-                    encrypt = new Encrypt(FLAG.TOKEN,"utf-8");
-                    picInfo = encrypt.encode(picInfoJson.toString());
-                    Log.v(TAG,picInfo);
-                    String newPicInfo = encrypt.decode(picInfo);
-                    Log.v(TAG,FLAG.TOKEN);
-                    Log.v(TAG,newPicInfo);
-                } catch (Exception e) {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-
-                if(picMap == null){
-                    Toast.makeText(this,"图片为空",Toast.LENGTH_SHORT).show();
-                    Log.v(TAG,"save file is null");
-                }else {
-                    //水印嵌入算法
-                    picMap = EmbedInfo.writeInfoInBiM(EmbedInfo.Info2Binary(picInfo),picMap);
-                    //图片转换字节并且进行base64编码
-                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                    picMap.compress(Bitmap.CompressFormat.PNG,100,bos);
-                    byte[] picAinfo = bos.toByteArray();
-                    if(picAinfo.length > 0 ) {
-                        String picData = Base64.encodeToString(picAinfo,Base64.DEFAULT);
-
-                        //json传输的封装
-                        JSONObject uploadJson = new JSONObject();
-                        try {
-                            uploadJson.put("function", FLAG.FUNCTION[1]);
-                            uploadJson.put("token", FLAG.TOKEN);
-                            uploadJson.put("pic", picData);
-                            connection.setData(uploadJson);
-                            connection.startSend();
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }else{
-                        Log.v(TAG,"read data is null");
-                    }
-                }
-                break;
-            }
-            default:{
-                break;
+            }else{
+                Log.v(TAG,"read data is null");
             }
         }
     }

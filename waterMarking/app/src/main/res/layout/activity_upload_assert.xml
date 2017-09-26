@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:weightSum="1.0">
     <RelativeLayout
@@ -75,10 +77,9 @@
             android:id="@+id/assert_description_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="testtesttesttesttesttesttesttesttesttest"
             android:maxEms="120"
             />
-        <Button
+       <!-- <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/btn_assert_upload"
@@ -86,7 +87,29 @@
             android:textColor="@color/fontColor"
             android:background="#AEEEEE"
             android:layout_marginTop="5pt"
-            android:layout_gravity="center_horizontal"/>
+            android:layout_gravity="center_horizontal"/>-->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/btn_assert_upload1"
+                android:background="@color/colorAccent"
+                android:text="上传"
+                android:layout_width="100dp"
+                android:layout_height="60dp"
+                android:textColor="@color/cpb_b"
+                android:textSize="18sp"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true" />
+            <com.rey.material.widget.ProgressView
+                android:visibility="invisible"
+                android:id="@+id/progress_pv_circular"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                app:v_styleId="@array/pv_circular"/>
+        </RelativeLayout>
     </LinearLayout>
 
 </LinearLayout>
